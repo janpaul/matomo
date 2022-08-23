@@ -3,19 +3,29 @@ version: "2.4"
 services:
   db:
     image: mariadb:10.8
+    command: --max-allowed-packet=64MB
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD: "root"
+      MARIADB_ROOT_PASSWORD:
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
     ports:
       - 3306:3306
     env_file:
       - ./.env
   app:
-    image: matomo
+    image: matomo:latest
     depends_on:
       - db
     restart: always
+    volumes:
+      - matomo:/var/www/html
     ports:
-      - 8080:8888
+      - 8888:80
+    links:
+      - db
     env_file:
       - ./.env
+
+volumes:
+  matomo:
+    driver: local
